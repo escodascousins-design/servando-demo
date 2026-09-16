@@ -12,6 +12,8 @@ Se conserva el diseño público, WhatsApp, llamadas y pago presencial. El client
 
 Panel con autenticación real y datos compartidos en D1: semana flexible y partida, fechas con horario especial o totalmente cerradas, bloqueos parciales, duración global de cada cita, margen mínimo y antelación máxima de 1–7 días naturales en Europe/Madrid (hoy más hasta siete días; no ventana móvil exacta de 168 horas). Horarios vacíos y reserva pausada de inicio: no se inventan horarios, servicios ni precios.
 
+La pantalla principal del panel es una agenda semanal visual. Muestra citas confirmadas y pendientes, horas abiertas y bloqueos; al pulsar un hueco prepara una cita manual y al pulsar una cita abre sus acciones de contacto y gestión. Los horarios y demás ajustes quedan apartados en «Mis horarios» para que la consulta diaria sea sencilla.
+
 Las citas manuales pueden anotarse a cualquier hora futura, incluso fuera del horario publicado o de la antelación online. Consumen disponibilidad si coinciden con un hueco público. La duración global se guarda por cita y las citas antiguas conservan su duración al cambiar el ajuste. Cambiar disponibilidad nunca cancela citas automáticamente; el panel avisa de citas fuera del nuevo horario. Para mover una cita, hablar con el cliente, cancelar la anterior y anotar la nueva.
 
 Los pendientes ocupan su intervalo hasta que Servando los confirma o cancela. Pausar impide nuevas solicitudes online pero conserva citas y permite anotar las de teléfono. No hay correos, pagos, recordatorios ni notificaciones automáticas: hay que entrar al panel y avisar al cliente.
