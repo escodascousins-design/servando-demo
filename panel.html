@@ -1,21 +1,835 @@
-<!doctype html>
-<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Tu agenda — Servando</title><meta name="theme-color" content="#24463d"><link rel="stylesheet" href="/booking.css"><link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%2324463d'/><text x='50' y='72' font-family='Georgia' font-size='78' text-anchor='middle' fill='%23f5efe4'>S</text></svg>"></head>
-<body class="panel-page"><main class="panel-wrap">
-<header class="panel-header"><div><h1>Servando · Tu agenda</h1><a href="/">Ver la web ↗</a></div><button id="logout" hidden>Salir</button></header>
-<p id="feedback" class="booking-status sticky-feedback" role="status" aria-live="polite"></p>
-<section id="login" class="panel-card panel-login"><h2>Entra a tu agenda</h2><p>Solo tú decides cuándo se puede pedir cita.</p><form id="loginForm"><label>Contraseña<input name="password" type="password" autocomplete="current-password" maxlength="256" required></label><button>Entrar</button></form><noscript>Para utilizar el panel necesitas JavaScript.</noscript></section>
-<div id="dashboard" hidden>
-<div class="agenda-layout"><aside class="agenda-sidebar"><button id="newAppointment">+ Anotar cita</button><button id="openBlock" class="secondary">Bloquear unas horas</button><button id="openSettings" class="secondary">Mis horarios</button><p id="onlineStatus" class="online-status"></p><p class="booking-help">Tú decides cuándo trabajar. Las solicitudes online necesitan tu confirmación.</p><div class="calendar-legend"><span class="legend-confirmed">Confirmada</span><span class="legend-pending">Pendiente</span><span class="legend-blocked">Tiempo bloqueado</span><span class="legend-available">Horario abierto</span></div><button id="updateAgenda" class="secondary">Actualizar agenda</button></aside><section class="panel-card calendar-card" aria-label="Calendario de citas"><div class="calendar-toolbar"><div class="week-navigation"><button id="previousWeek" class="secondary" aria-label="Semana anterior">←</button><button id="nextWeek" class="secondary" aria-label="Semana siguiente">→</button><h2 id="weekTitle"></h2></div><div class="calendar-views"><button id="today" class="secondary">Hoy</button><button id="weekView" aria-pressed="true">Semana</button><button id="agendaView" class="secondary" aria-pressed="false">Lista</button></div></div><p id="weekSummary" class="booking-help"></p><div id="calendarViewport" class="calendar-viewport"><div id="calendar"></div></div><p class="booking-help">Pulsa una cita para verla o un hueco para anotarla. Horas de Xixona.</p></section></div>
-<section id="settingsCard" class="panel-card" hidden><div class="section-heading"><h2>Mis horarios</h2><button type="button" class="secondary" data-close="settingsCard">Cerrar</button></div><p id="activationNotice"></p>
-<form id="settingsForm"><div class="control-grid">
-<label class="check"><input type="checkbox" id="enabled">Aceptar solicitudes online</label>
-<label>¿Con cuántos días de antelación?<select id="maxDays"><option value="1">1 día</option><option value="2">2 días</option><option value="3">3 días</option><option value="4">4 días</option><option value="5">5 días</option><option value="6">6 días</option><option value="7">Una semana (7 días)</option></select></label>
-<label>Tiempo reservado por cita<select id="duration"><option value="15">15 minutos</option><option value="30">30 minutos</option><option value="45">45 minutos</option><option value="60">1 hora</option><option value="90">1 hora y media</option><option value="120">2 horas</option></select></label>
-<label>Margen mínimo antes de una cita (horas)<input id="noticeHours" type="number" min="0" max="168" required></label></div>
-<h3>Semana habitual</h3><p class="booking-help">Escribe las franjas que quieras, por ejemplo: 09:00-13:00, 17:00-19:00. Déjalo vacío para no trabajar. Puedes cambiarlas en cualquier momento. Horas de Xixona.</p><div id="weekly"></div>
-<h3>Días especiales</h3><p class="booking-help">El horario de una fecha concreta sustituye al de la semana. Vacío significa día cerrado.</p><div class="control-grid"><label>Fecha<input id="overrideDate" type="date"></label><label>Franjas (vacío = cerrado)<input id="overrideWindows" placeholder="09:00-12:00, 17:00-19:00"></label></div><div class="panel-actions"><button type="button" id="addOverride" class="secondary">Añadir / cambiar día</button></div><div id="overrides"></div>
-<h3 id="blockHeading" tabindex="-1">Bloquear unas horas</h3><p class="booking-help">Para descansar, salir o guardar tiempo para ti. Para cerrar el día completo, usa un día especial con las franjas vacías.</p><div class="control-grid"><label>Fecha<input id="blockDate" type="date"></label><label>Desde<input id="blockStart" type="time"></label><label>Hasta<input id="blockEnd" type="time"></label></div><div class="panel-actions"><button type="button" id="addBlock" class="secondary">Añadir bloqueo</button></div><div id="blocks"></div>
-<p class="booking-help">Añadir o quitar un día o bloqueo no se aplica hasta pulsar Guardar. Las citas existentes se conservan: si quedan fuera del horario nuevo, te avisaremos para que hables con el cliente.</p><div class="panel-actions"><button type="submit">Guardar disponibilidad</button><button type="button" id="refresh" class="secondary">Descartar cambios y actualizar</button></div></form></section>
-<section id="manualCard" class="panel-card" hidden><div class="section-heading"><h2>Anotar una cita</h2><button type="button" class="secondary" data-close="manualCard">Cerrar</button></div><p class="booking-help">Ocupa el hueco en la web. Puedes anotar una cita futura fuera de los huecos publicados y del límite online, también con las solicitudes pausadas. No puede solaparse con otra cita.</p><form id="manualForm" class="control-grid"><label>Nombre<input name="nombre" minlength="2" maxlength="80" required></label><label>Teléfono<input name="telefono" type="tel" maxlength="20" required></label><label>Fecha<input name="fecha" type="date" required></label><label>Hora<input name="hora" type="time" required></label><label class="booking-wide">Notas (opcional)<textarea name="notas" maxlength="300"></textarea></label><button>Anotar cita confirmada</button></form></section>
-<section id="appointmentsCard" class="panel-card" hidden><h2>Citas y solicitudes</h2><p id="stats"></p><div class="panel-toolbar"><input id="search" type="search" aria-label="Buscar cliente o teléfono" placeholder="Buscar cliente o teléfono"><select id="filter" aria-label="Filtrar citas"><option value="activas">Pendientes y confirmadas</option><option value="pendiente">Pendientes</option><option value="confirmada">Confirmadas</option><option value="cancelada">Canceladas</option><option value="todas">Todas</option></select></div><div id="appointments"></div></section>
-</div><dialog id="appointmentDialog" class="panel-card appointment-dialog"><form method="dialog"><button class="secondary dialog-close" aria-label="Cerrar detalle">Cerrar ×</button></form><div id="appointmentDetail"></div></dialog></main><script type="module" src="/panel.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel de citas — Servando</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#f5efe4">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%2324463d'/><text x='50' y='72' font-family='Georgia,serif' font-style='italic' font-size='78' font-weight='600' text-anchor='middle' fill='%23f5efe4'>S</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:        #f5efe4;
+    --bg-alt:    #ede4d0;
+    --paper:     #fbf7ee;
+    --ink:       #151412;
+    --ink-soft:  #2a2823;
+    --muted:     #6d635a;
+    --muted-2:   #8a7f73;
+    --line:      rgba(21,20,18,0.14);
+    --line-soft: rgba(21,20,18,0.07);
+    --accent:    #24463d;
+    --accent-2:  #2f5a4f;
+    --accent-3:  #a86432;
+    --green:     #4a7a5a;
+    --red:       #b04747;
+    --orange:    #b8722a;
+    --wa:        #25d366;
+    --shadow:    0 24px 60px rgba(20,15,8,0.14);
+    --shadow-sm: 0 8px 22px rgba(20,15,8,0.08);
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html{ -webkit-text-size-adjust:100%; }
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Jost', ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-weight:400;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{ background:var(--accent); color:var(--bg); }
+  ::-webkit-scrollbar{ width:10px; height:10px; }
+  ::-webkit-scrollbar-track{ background:var(--bg-alt); }
+  ::-webkit-scrollbar-thumb{ background:var(--accent); border-radius:10px; border:2px solid var(--bg-alt); }
+  h1,h2,h3,h4{ font-family:'Cormorant Garamond', Georgia, serif; font-weight:600; letter-spacing:-0.01em; color:var(--ink); }
+  a{ color:inherit; text-decoration:none; }
+
+  /* LOGIN */
+  .login-screen{
+    min-height:100vh; display:flex; align-items:center; justify-content:center;
+    background:
+      radial-gradient(1000px 500px at 15% 10%, rgba(36,70,61,0.10), transparent 60%),
+      radial-gradient(900px 500px at 85% 90%, rgba(168,100,50,0.08), transparent 60%),
+      var(--bg);
+    padding:24px;
+  }
+  .login-box{
+    background:var(--paper); border:1px solid var(--line-soft); border-radius:16px;
+    padding:44px 40px 40px; max-width:400px; width:100%;
+    text-align:center; box-shadow:var(--shadow);
+  }
+  .login-mark{
+    width:56px; height:56px; margin:0 auto 18px;
+    border-radius:50%; background:var(--accent); color:var(--bg);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Cormorant Garamond',serif; font-style:italic; font-weight:600;
+    font-size:1.7rem;
+  }
+  .login-box .logo{
+    font-family:'Cormorant Garamond',serif; font-size:1.9rem;
+    font-weight:600; color:var(--ink); margin-bottom:6px; letter-spacing:-0.01em;
+  }
+  .login-box .login-sub{
+    color:var(--muted); font-size:0.9rem; margin-bottom:32px;
+    font-family:'Jost',sans-serif;
+  }
+  .login-box .form-group{ margin-bottom:16px; text-align:left; }
+  .login-box label{
+    display:block; font-size:0.72rem; letter-spacing:0.18em;
+    text-transform:uppercase; color:var(--muted); margin-bottom:8px; font-weight:500;
+  }
+  .login-box input{
+    width:100%; padding:13px 16px; background:var(--bg);
+    border:1px solid var(--line); border-radius:8px; color:var(--ink);
+    font-family:'Jost',sans-serif; font-size:0.95rem; font-weight:400;
+    transition:border-color 0.25s ease, box-shadow 0.25s ease;
+  }
+  .login-box input:focus{
+    outline:none; border-color:var(--accent);
+    box-shadow:0 0 0 3px rgba(36,70,61,0.12);
+  }
+  .login-btn{
+    width:100%; padding:14px; background:var(--accent); color:var(--bg);
+    border:none; border-radius:999px;
+    font-family:'Jost',sans-serif; font-size:0.95rem; font-weight:500;
+    letter-spacing:0.02em; cursor:pointer;
+    transition:background 0.25s ease, transform 0.25s ease;
+    margin-top:10px;
+  }
+  .login-btn:hover{ background:var(--accent-2); transform:translateY(-1px); }
+  .login-hint{
+    margin-top:18px; font-size:0.75rem; color:var(--muted-2);
+    letter-spacing:0.02em;
+  }
+
+  /* PANEL */
+  .panel{ display:none; min-height:100vh; }
+  .panel.active{ display:block; }
+
+  .panel-header{
+    background:rgba(245,239,228,0.85);
+    backdrop-filter:saturate(1.2) blur(14px);
+    -webkit-backdrop-filter:saturate(1.2) blur(14px);
+    border-bottom:1px solid var(--line-soft);
+    padding:14px 0; position:sticky; top:0; z-index:50;
+  }
+  .panel-header .wrap{
+    max-width:1300px; margin:0 auto; padding:0 24px;
+    display:flex; align-items:center; justify-content:space-between; gap:14px;
+  }
+  .panel-header .brand-row{ display:flex; align-items:center; gap:14px; min-width:0; }
+  .panel-header .logo-mark{
+    width:34px; height:34px; border-radius:50%;
+    background:var(--accent); color:var(--bg);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Cormorant Garamond',serif; font-style:italic; font-weight:600;
+    font-size:1.05rem;
+  }
+  .panel-header .logo{
+    font-family:'Cormorant Garamond',serif; font-size:1.4rem;
+    font-weight:600; color:var(--ink);
+  }
+  .panel-header .panel-tag{
+    background:rgba(36,70,61,0.10); color:var(--accent);
+    padding:4px 12px; border-radius:999px;
+    font-size:0.7rem; letter-spacing:0.18em; text-transform:uppercase;
+    font-weight:500;
+  }
+  .panel-header .user-info{ display:flex; align-items:center; gap:12px; }
+  .panel-header .user-name{ color:var(--muted); font-size:0.86rem; }
+  .panel-header .user-avatar{
+    width:34px; height:34px; border-radius:50%;
+    background:linear-gradient(135deg, var(--accent), var(--accent-3));
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Cormorant Garamond',serif; font-weight:600; color:var(--bg); font-size:0.95rem;
+  }
+  .logout-btn{
+    background:none; border:1px solid var(--line); border-radius:999px;
+    color:var(--muted); padding:6px 14px; font-size:0.78rem; cursor:pointer;
+    font-family:'Jost',sans-serif; transition:all 0.25s ease;
+  }
+  .logout-btn:hover{ border-color:var(--red); color:var(--red); }
+
+  .panel-body{ max-width:1300px; margin:0 auto; padding:28px 24px 60px; }
+
+  .intro{
+    background:var(--paper); border:1px dashed var(--line); border-radius:14px;
+    padding:14px 18px; margin-bottom:24px; display:flex; gap:12px; align-items:flex-start;
+    color:var(--muted); font-size:0.88rem;
+  }
+  .intro svg{ flex-shrink:0; color:var(--accent); margin-top:2px; }
+  .intro b{ color:var(--ink); font-weight:500; }
+
+  /* STATS */
+  .stats-grid{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:32px;
+  }
+  .stat-card{
+    background:var(--paper); border:1px solid var(--line-soft); border-radius:14px;
+    padding:22px 22px 20px; transition:border-color 0.3s ease, transform 0.3s ease;
+    position:relative; overflow:hidden;
+  }
+  .stat-card::before{
+    content:''; position:absolute; top:0; left:0; right:0; height:2px;
+    background:var(--accent); transform:scaleX(0); transform-origin:left;
+    transition:transform 0.4s ease;
+  }
+  .stat-card:hover{ border-color:rgba(36,70,61,0.24); transform:translateY(-2px); }
+  .stat-card:hover::before{ transform:scaleX(1); }
+  .stat-card.orange::before{ background:var(--orange); }
+  .stat-card.green::before{ background:var(--green); }
+  .stat-label{
+    font-size:0.7rem; letter-spacing:0.18em; text-transform:uppercase;
+    color:var(--muted); margin-bottom:10px; font-weight:500;
+  }
+  .stat-value{
+    font-family:'Cormorant Garamond',serif; font-size:2.4rem; font-weight:600;
+    color:var(--accent); line-height:1;
+  }
+  .stat-card.orange .stat-value{ color:var(--orange); }
+  .stat-card.green .stat-value{ color:var(--green); }
+  .stat-detail{ font-size:0.8rem; color:var(--muted); margin-top:8px; }
+
+  /* TOOLBAR */
+  .toolbar{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:18px; flex-wrap:wrap; gap:14px;
+  }
+  .toolbar h2{ font-size:1.6rem; color:var(--ink); }
+  .toolbar-actions{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .filter-btn{
+    background:var(--paper); border:1px solid var(--line); border-radius:999px;
+    color:var(--muted); padding:8px 16px; font-size:0.82rem; cursor:pointer;
+    font-family:'Jost',sans-serif; transition:all 0.25s ease; font-weight:400;
+  }
+  .filter-btn:hover{ border-color:var(--accent); color:var(--accent); }
+  .filter-btn.active{ background:var(--accent); color:var(--bg); border-color:var(--accent); font-weight:500; }
+  .search-input{
+    background:var(--paper); border:1px solid var(--line); border-radius:999px;
+    color:var(--ink); padding:8px 16px; font-size:0.88rem;
+    font-family:'Jost',sans-serif; font-weight:400; width:220px;
+    transition:border-color 0.25s ease, box-shadow 0.25s ease;
+  }
+  .search-input:focus{
+    outline:none; border-color:var(--accent);
+    box-shadow:0 0 0 3px rgba(36,70,61,0.10);
+  }
+  .search-input::placeholder{ color:var(--muted-2); }
+
+  /* TABLE */
+  .table-wrap{
+    background:var(--paper); border:1px solid var(--line-soft); border-radius:14px;
+    overflow:hidden; box-shadow:var(--shadow-sm);
+  }
+  .table-scroll{ overflow-x:auto; }
+  table{ width:100%; border-collapse:collapse; min-width:820px; }
+  thead{ background:var(--bg-alt); }
+  th{
+    padding:14px 18px; text-align:left; font-size:0.7rem; letter-spacing:0.16em;
+    text-transform:uppercase; color:var(--muted); font-weight:500;
+    border-bottom:1px solid var(--line-soft);
+  }
+  td{
+    padding:15px 18px; border-bottom:1px solid var(--line-soft); font-size:0.92rem;
+    color:var(--ink); vertical-align:middle;
+  }
+  tr:last-child td{ border-bottom:none; }
+  tr[data-ref]{ cursor:pointer; transition:background 0.2s ease; }
+  tr[data-ref]:hover td{ background:rgba(36,70,61,0.03); }
+  td .ref-code{ font-family:'Cormorant Garamond',serif; font-weight:600; color:var(--accent); font-size:1rem; letter-spacing:0.02em; }
+  td .cliente-name{ font-weight:500; color:var(--ink); }
+  td .cliente-phone{ color:var(--muted); font-size:0.8rem; margin-top:2px; letter-spacing:0.01em; }
+  td .servicio-txt{ font-size:0.9rem; color:var(--ink-soft); }
+  td .notas-text{ color:var(--muted); font-size:0.82rem; font-style:italic; max-width:220px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  td .dia-fecha{ display:flex; flex-direction:column; gap:2px; }
+  td .dia-fecha .d{ font-weight:500; }
+  td .dia-fecha .rel{ font-size:0.76rem; color:var(--muted); }
+  td .hora-cell{ font-family:'Cormorant Garamond',serif; font-size:1.05rem; font-weight:600; color:var(--ink); }
+
+  .badge{
+    display:inline-block; padding:4px 12px; border-radius:999px;
+    font-size:0.72rem; font-weight:500; letter-spacing:0.06em; text-transform:uppercase;
+  }
+  .badge-pendiente{ background:rgba(184,114,42,0.15); color:var(--orange); }
+  .badge-confirmada{ background:rgba(74,122,90,0.15); color:var(--green); }
+  .badge-cancelada{ background:rgba(176,71,71,0.15); color:var(--red); }
+
+  .action-btns{ display:flex; gap:6px; }
+  .action-btn{
+    width:32px; height:32px; border-radius:8px; border:1px solid var(--line);
+    background:var(--bg); color:var(--muted); cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    font-size:0.9rem; transition:all 0.25s ease;
+  }
+  .action-btn svg{ width:15px; height:15px; }
+  .action-btn:hover{ border-color:var(--accent); color:var(--accent); transform:translateY(-1px); }
+  .action-btn.confirm:hover{ border-color:var(--green); color:var(--green); background:rgba(74,122,90,0.06); }
+  .action-btn.cancel:hover{ border-color:var(--red); color:var(--red); background:rgba(176,71,71,0.06); }
+  .action-btn.whatsapp:hover{ border-color:var(--wa); color:var(--wa); background:rgba(37,211,102,0.06); }
+
+  .table-footer{
+    padding:14px 18px; border-top:1px solid var(--line-soft);
+    display:flex; justify-content:space-between; align-items:center;
+    font-size:0.82rem; color:var(--muted); background:var(--bg-alt);
+  }
+
+  /* TOAST */
+  .toast{
+    position:fixed; bottom:26px; right:26px; z-index:500;
+    background:var(--paper); border:1px solid var(--green); border-left:3px solid var(--green);
+    border-radius:10px; padding:14px 20px; color:var(--ink); font-size:0.9rem;
+    box-shadow:0 16px 40px rgba(0,0,0,0.15);
+    transform:translateY(100px); opacity:0; transition:all 0.4s cubic-bezier(.16,.84,.44,1);
+    max-width:340px;
+  }
+  .toast.show{ transform:translateY(0); opacity:1; }
+  .toast.error{ border-color:var(--red); border-left-color:var(--red); }
+  .toast.info{ border-color:var(--accent); border-left-color:var(--accent); }
+
+  /* DETAIL MODAL */
+  .detail-overlay{
+    display:none; position:fixed; inset:0; z-index:300;
+    background:rgba(21,20,18,0.6); backdrop-filter:blur(6px);
+    align-items:center; justify-content:center; padding:20px;
+  }
+  .detail-overlay.open{ display:flex; }
+  .detail-modal{
+    background:var(--paper); border:1px solid var(--line-soft); border-radius:16px;
+    max-width:500px; width:100%; padding:36px 32px 32px; position:relative;
+    box-shadow:0 40px 80px rgba(0,0,0,0.25);
+    animation:modalIn 0.35s cubic-bezier(.16,.84,.44,1);
+    max-height:calc(100vh - 40px); overflow-y:auto;
+  }
+  @keyframes modalIn{ from{ opacity:0; transform:translateY(20px) scale(0.97);} to{ opacity:1; transform:translateY(0) scale(1);} }
+  .detail-modal .modal-close{
+    position:absolute; top:14px; right:14px; width:34px; height:34px;
+    background:var(--bg); border:1px solid var(--line); border-radius:50%;
+    color:var(--muted); font-size:1.1rem; cursor:pointer; line-height:1;
+    display:flex; align-items:center; justify-content:center; transition:all 0.25s ease;
+  }
+  .detail-modal .modal-close:hover{ background:var(--red); color:var(--bg); border-color:var(--red); }
+  .detail-modal .detail-header{ margin-bottom:22px; }
+  .detail-modal h3{ font-size:1.6rem; margin-bottom:4px; }
+  .detail-modal .detail-ref{ color:var(--accent); font-family:'Cormorant Garamond',serif; font-size:1.05rem; letter-spacing:0.02em; }
+  .detail-row{
+    display:flex; justify-content:space-between; align-items:baseline; gap:16px;
+    padding:12px 0; border-bottom:1px solid var(--line-soft);
+  }
+  .detail-row:last-child{ border-bottom:none; }
+  .detail-row .dl{
+    font-size:0.72rem; letter-spacing:0.14em; text-transform:uppercase;
+    color:var(--muted); font-weight:500; white-space:nowrap;
+  }
+  .detail-row .dv{ color:var(--ink); text-align:right; font-size:0.95rem; }
+  .detail-actions{ display:flex; gap:10px; margin-top:26px; flex-wrap:wrap; }
+  .detail-actions button{
+    flex:1; min-width:110px; padding:12px 14px; border:1px solid transparent; border-radius:999px;
+    font-family:'Jost',sans-serif; font-size:0.88rem; font-weight:500;
+    cursor:pointer; transition:all 0.25s ease;
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  }
+  .btn-confirm{ background:var(--green); color:#fff; }
+  .btn-confirm:hover{ filter:brightness(1.08); }
+  .btn-cancel-res{ background:transparent; color:var(--red); border-color:var(--red); }
+  .btn-cancel-res:hover{ background:var(--red); color:#fff; }
+  .btn-wa{ background:transparent; color:var(--wa); border-color:var(--wa); }
+  .btn-wa:hover{ background:var(--wa); color:#fff; }
+  .detail-actions svg{ width:15px; height:15px; }
+
+  /* DEMO BADGE */
+  .demo-badge{
+    position:fixed; bottom:18px; left:18px; z-index:90;
+    background:var(--paper); border:1px solid var(--line);
+    border-radius:999px; padding:8px 14px;
+    font-family:'Jost',sans-serif; font-size:0.72rem;
+    color:var(--muted); letter-spacing:0.12em; text-transform:uppercase;
+    box-shadow:var(--shadow-sm);
+  }
+  .demo-badge span{ color:var(--accent); font-weight:500; }
+
+  @media (max-width: 900px){
+    .stats-grid{ grid-template-columns:repeat(2,1fr); }
+    .toolbar{ flex-direction:column; align-items:stretch; }
+    .toolbar h2{ font-size:1.35rem; }
+    .search-input{ width:100%; }
+    .toolbar-actions{ overflow-x:auto; padding-bottom:4px; }
+    .filter-btn{ white-space:nowrap; }
+    .intro{ font-size:0.85rem; }
+  }
+  @media (max-width: 600px){
+    .stats-grid{ grid-template-columns:1fr 1fr; gap:12px; }
+    .stat-card{ padding:18px; }
+    .stat-value{ font-size:2rem; }
+    .panel-header .user-name{ display:none; }
+    .panel-header .logo{ font-size:1.2rem; }
+    .panel-header .panel-tag{ display:none; }
+    .detail-actions{ flex-direction:column; }
+    .detail-actions button{ flex:none; }
+    .demo-badge{ bottom:14px; left:14px; padding:6px 12px; font-size:0.66rem; }
+    .panel-body{ padding:20px 16px 50px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <div class="login-mark">S</div>
+    <div class="logo">Servando</div>
+    <p class="login-sub">Panel de gestión de citas</p>
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="loginUser">Usuario</label>
+        <input type="text" id="loginUser" placeholder="servando" value="servando" autocomplete="username">
+      </div>
+      <div class="form-group">
+        <label for="loginPass">Contraseña</label>
+        <input type="password" id="loginPass" placeholder="••••" value="1234" autocomplete="current-password">
+      </div>
+      <button type="submit" class="login-btn">Entrar</button>
+      <p class="login-hint">Demo — los campos ya están rellenados</p>
+    </form>
+  </div>
+</div>
+
+<!-- PANEL -->
+<div class="panel" id="panelMain">
+
+  <header class="panel-header">
+    <div class="wrap">
+      <div class="brand-row">
+        <a href="index.html" class="logo-mark" aria-label="Ir a la web">S</a>
+        <span class="logo">Servando</span>
+        <span class="panel-tag">Citas</span>
+      </div>
+      <div class="user-info">
+        <span class="user-name">Servando</span>
+        <div class="user-avatar">S</div>
+        <button class="logout-btn" id="logoutBtn">Salir</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="panel-body">
+
+    <div class="intro">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      <div>
+        Aquí verías las peticiones de cita que llegan desde la web. <b>Confirmas o cancelas de un toque</b>, y si quieres puedes contestar al cliente por WhatsApp desde el mismo panel. Los datos de esta pantalla son de ejemplo.
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Citas hoy</div>
+        <div class="stat-value" id="statHoy">0</div>
+        <div class="stat-detail" id="statHoyDetail">-</div>
+      </div>
+      <div class="stat-card orange">
+        <div class="stat-label">Pendientes</div>
+        <div class="stat-value" id="statPendientes">0</div>
+        <div class="stat-detail">Por confirmar</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-label">Confirmadas esta semana</div>
+        <div class="stat-value" id="statSemana">0</div>
+        <div class="stat-detail" id="statSemanaDetail">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total citas</div>
+        <div class="stat-value" id="statTotal">0</div>
+        <div class="stat-detail">Desde la activación</div>
+      </div>
+    </div>
+
+    <!-- TOOLBAR -->
+    <div class="toolbar">
+      <h2>Listado de citas</h2>
+      <div class="toolbar-actions">
+        <input type="text" class="search-input" id="searchInput" placeholder="Buscar por nombre o ref…">
+        <button class="filter-btn active" data-filter="todas">Todas</button>
+        <button class="filter-btn" data-filter="pendiente">Pendientes</button>
+        <button class="filter-btn" data-filter="confirmada">Confirmadas</button>
+        <button class="filter-btn" data-filter="cancelada">Canceladas</button>
+      </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Ref</th>
+              <th>Cliente</th>
+              <th>Día</th>
+              <th>Hora</th>
+              <th>Servicio</th>
+              <th>Estado</th>
+              <th>Notas</th>
+              <th style="text-align:right;">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="citasBody"></tbody>
+        </table>
+      </div>
+      <div class="table-footer">
+        <span id="tableCount">0 citas</span>
+        <span id="tableInfo">Actualizado ahora</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="detail-overlay" id="detailOverlay">
+  <div class="detail-modal">
+    <button class="modal-close" id="detailClose" aria-label="Cerrar">✕</button>
+    <div class="detail-header">
+      <h3 id="detailNombre">-</h3>
+      <div class="detail-ref" id="detailRef">-</div>
+    </div>
+    <div class="detail-row"><span class="dl">Teléfono</span><span class="dv" id="detailTel">-</span></div>
+    <div class="detail-row"><span class="dl">Día</span><span class="dv" id="detailFecha">-</span></div>
+    <div class="detail-row"><span class="dl">Hora</span><span class="dv" id="detailHora">-</span></div>
+    <div class="detail-row"><span class="dl">Servicio</span><span class="dv" id="detailServicio">-</span></div>
+    <div class="detail-row"><span class="dl">Notas</span><span class="dv" id="detailNotas">-</span></div>
+    <div class="detail-row"><span class="dl">Estado</span><span class="dv" id="detailEstado">-</span></div>
+    <div class="detail-row"><span class="dl">Solicitada</span><span class="dv" id="detailCreada">-</span></div>
+    <div class="detail-actions">
+      <button class="btn-confirm" id="detailConfirm">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Confirmar
+      </button>
+      <button class="btn-wa" id="detailWa">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.77.46 3.44 1.27 4.9L2 22l5.25-1.37A9.95 9.95 0 0 0 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm5.2 14.36c-.22.62-1.28 1.18-1.78 1.24-.45.05-1.02.07-1.65-.1-.38-.11-.87-.28-1.5-.54-2.63-1.13-4.34-3.78-4.47-3.95-.13-.17-1.07-1.42-1.07-2.72 0-1.3.68-1.94.92-2.2.24-.27.53-.34.7-.34.17 0 .35 0 .5.01.16.01.38-.06.6.46.22.53.75 1.83.82 1.96.07.13.11.28.02.46-.09.17-.13.28-.26.44-.13.16-.27.35-.39.47-.13.13-.26.27-.11.53.15.26.68 1.13 1.47 1.83 1.01.91 1.87 1.19 2.14 1.33.26.13.42.11.57-.07.15-.18.65-.76.82-1.02.17-.26.34-.22.58-.13.24.09 1.53.72 1.79.85.26.13.44.2.5.31.06.11.06.66-.16 1.28z"/></svg>
+        WhatsApp
+      </button>
+      <button class="btn-cancel-res" id="detailCancel">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Cancelar
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="demo-badge">Panel <span>Demo</span> — datos de ejemplo</div>
+
+<script>
+// ---------- SEED DATA (relativa al día en que se abre) ----------
+function toISODate(d) {
+  var y = d.getFullYear(), m = ('0' + (d.getMonth()+1)).slice(-2), day = ('0' + d.getDate()).slice(-2);
+  return y + '-' + m + '-' + day;
+}
+function offsetDate(days) {
+  var d = new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate() + days);
+  return toISODate(d);
+}
+function offsetISO(days, h, m) {
+  var d = new Date(); d.setDate(d.getDate() + days); d.setHours(h||9, m||0, 0, 0);
+  return d.toISOString();
+}
+
+var DEMO_CITAS = [
+  // Hoy
+  {ref:'CIT-A7K2M1', nombre:'Rafael Bernabeu',    telefono:'666 21 33 41', fecha:offsetDate(0),  hora:'10:00', servicio:'Corte + barba',   notas:'El de siempre, muy corto arriba', estado:'confirmada', creada:offsetISO(-2, 19, 20)},
+  {ref:'CIT-B3N8P4', nombre:'Vicent Pastor',       telefono:'622 87 65 41', fecha:offsetDate(0),  hora:'11:30', servicio:'Corte',            notas:'',                                estado:'confirmada', creada:offsetISO(-3, 8, 12)},
+  {ref:'CIT-C9D4F7', nombre:'Manuel Sirvent',      telefono:'655 43 21 09', fecha:offsetDate(0),  hora:'17:00', servicio:'Corte + barba',   notas:'Se queda a arreglar cejas también', estado:'pendiente', creada:offsetISO(0, 8, 5)},
+  {ref:'CIT-D1G6H3', nombre:'Ana Belén García',    telefono:'611 22 23 33', fecha:offsetDate(0),  hora:'18:30', servicio:'Corte niño',       notas:'Su hijo Marc, 6 años',            estado:'pendiente', creada:offsetISO(-1, 21, 40)},
+
+  // Mañana
+  {ref:'CIT-E5J2K8', nombre:'Josep Miquel Torres', telefono:'677 88 89 99', fecha:offsetDate(1),  hora:'09:30', servicio:'Corte',            notas:'',                                estado:'confirmada', creada:offsetISO(-4, 14, 10)},
+  {ref:'CIT-F8L4M2', nombre:'Andrés Ripoll',       telefono:'633 44 45 55', fecha:offsetDate(1),  hora:'12:00', servicio:'Arreglo barba',    notas:'Solo perfilado, sin corte',       estado:'pendiente', creada:offsetISO(0, 11, 10)},
+  {ref:'CIT-G2N7P5', nombre:'Francisco Aracil',    telefono:'644 11 12 22', fecha:offsetDate(1),  hora:'17:00', servicio:'Corte',            notas:'',                                estado:'pendiente', creada:offsetISO(0, 9, 5)},
+  {ref:'CIT-H6Q3R1', nombre:'Miquel Cortés',       telefono:'688 33 34 44', fecha:offsetDate(1),  hora:'19:00', servicio:'Corte + barba',   notas:'Nuevo cliente, viene de Alicante', estado:'pendiente', creada:offsetISO(0, 15, 40)},
+
+  // Pasado mañana
+  {ref:'CIT-I9S5T4', nombre:'Sergio Navarro',      telefono:'699 55 56 66', fecha:offsetDate(2),  hora:'10:30', servicio:'Corte',            notas:'',                                estado:'confirmada', creada:offsetISO(-1, 7, 30)},
+  {ref:'CIT-J1U8V6', nombre:'David Escoda',        telefono:'612 77 78 88', fecha:offsetDate(2),  hora:'12:30', servicio:'Corte + barba',   notas:'Antes del trabajo, tiene prisa',  estado:'pendiente', creada:offsetISO(0, 13, 15)},
+  {ref:'CIT-K4W2X9', nombre:'Elena Pastor',        telefono:'666 99 90 00', fecha:offsetDate(2),  hora:'18:00', servicio:'Corte niño',       notas:'Para Iker, 4 años, se pone nervioso', estado:'pendiente', creada:offsetISO(0, 12, 50)},
+
+  // En 3 días
+  {ref:'CIT-L7Y5Z3', nombre:'Antonio Mas',         telefono:'655 11 12 33', fecha:offsetDate(3),  hora:'11:00', servicio:'Corte',            notas:'',                                estado:'pendiente', creada:offsetISO(0, 10, 0)},
+  {ref:'CIT-M3A1B8', nombre:'Sandra Gómez',        telefono:'622 44 45 77', fecha:offsetDate(3),  hora:'17:30', servicio:'Corte niño',       notas:'Corte discreto, colegio',         estado:'pendiente', creada:offsetISO(0, 14, 22)},
+
+  // Ayer y anteayer (historial)
+  {ref:'CIT-N6C4D2', nombre:'Pablo Jiménez',       telefono:'633 88 82 22', fecha:offsetDate(-1), hora:'12:00', servicio:'Corte + barba',   notas:'',                                estado:'confirmada', creada:offsetISO(-3, 11, 30)},
+  {ref:'CIT-O9E7F1', nombre:'Marta Soler',         telefono:'644 33 39 99', fecha:offsetDate(-2), hora:'10:00', servicio:'Corte',            notas:'Pagó por Bizum',                  estado:'confirmada', creada:offsetISO(-5, 14, 0)},
+  {ref:'CIT-P2G5H4', nombre:'Carlos Herrero',      telefono:'611 66 61 11', fecha:offsetDate(-2), hora:'18:00', servicio:'Corte + barba',   notas:'',                                estado:'cancelada',  creada:offsetISO(-4, 14, 20)}
+];
+
+// Store con localStorage y fallback en memoria (navegación privada,
+// data: URLs de previews, WebViews restringidas, etc.)
+var STORE_KEY = 'servando_citas';
+var memStore = null;
+
+function readStore() {
+  if (memStore !== null) return memStore;
+  try {
+    var raw = localStorage.getItem(STORE_KEY);
+    if (raw) { memStore = JSON.parse(raw); return memStore; }
+  } catch(e) {}
+  return null;
+}
+function writeStore(arr) {
+  memStore = arr.slice();
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(arr)); } catch(e){}
+}
+function clearStore() {
+  memStore = null;
+  try { localStorage.removeItem(STORE_KEY); } catch(e){}
+}
+
+function initData() {
+  var existing = readStore();
+  if (!existing || existing.length === 0) {
+    writeStore(DEMO_CITAS);
+    return DEMO_CITAS.slice();
+  }
+  return existing;
+}
+
+var currentFilter = 'todas';
+var searchTerm = '';
+var selectedRef = null;
+
+function getCitas() {
+  return readStore() || [];
+}
+function saveCitas(arr) {
+  writeStore(arr);
+}
+function resetDataIfRequested() {
+  if (location.search.indexOf('reset=1') >= 0) clearStore();
+}
+
+function formatDateShort(d) {
+  if (!d) return '-';
+  var parts = d.split('-');
+  return parts[2] + '/' + parts[1];
+}
+function relativeDay(d) {
+  var t = offsetDate(0), t1 = offsetDate(1), tm1 = offsetDate(-1);
+  if (d === t) return 'Hoy';
+  if (d === t1) return 'Mañana';
+  if (d === tm1) return 'Ayer';
+  var dt = new Date(d + 'T00:00:00');
+  var days = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  return days[dt.getDay()];
+}
+function formatDateTime(iso) {
+  if (!iso) return '-';
+  var d = new Date(iso);
+  return d.toLocaleDateString('es-ES') + ' · ' + d.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+}
+function isToday(d) { return d === offsetDate(0); }
+function isThisWeek(d) {
+  var now = new Date(); var dt = new Date(d + 'T00:00:00');
+  var diff = (dt - now) / 86400000;
+  return diff >= -1 && diff <= 7;
+}
+
+function updateStats() {
+  var citas = getCitas();
+  var hoy = citas.filter(function(c){ return isToday(c.fecha); });
+  var hoyConfirmadas = hoy.filter(function(c){ return c.estado === 'confirmada'; });
+  var pendientes = citas.filter(function(c){ return c.estado === 'pendiente'; });
+  var semana = citas.filter(function(c){ return isThisWeek(c.fecha) && c.estado === 'confirmada'; });
+
+  document.getElementById('statHoy').textContent = hoy.length;
+  document.getElementById('statHoyDetail').textContent = hoyConfirmadas.length + ' confirmadas';
+  document.getElementById('statPendientes').textContent = pendientes.length;
+  document.getElementById('statSemana').textContent = semana.length;
+  document.getElementById('statSemanaDetail').textContent = semana.length ? 'En los próximos 7 días' : '-';
+  document.getElementById('statTotal').textContent = citas.length;
+}
+
+function escapeHTML(str) {
+  if (str == null) return '';
+  return String(str).replace(/[&<>"']/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
+
+function renderTable() {
+  var citas = getCitas();
+  var filtered = citas;
+  if (currentFilter !== 'todas') {
+    filtered = filtered.filter(function(c){ return c.estado === currentFilter; });
+  }
+  if (searchTerm) {
+    var q = searchTerm.toLowerCase();
+    filtered = filtered.filter(function(c){
+      return (c.nombre && c.nombre.toLowerCase().indexOf(q) > -1) ||
+             (c.ref && c.ref.toLowerCase().indexOf(q) > -1) ||
+             (c.telefono && c.telefono.replace(/\s/g,'').indexOf(q.replace(/\s/g,'')) > -1);
+    });
+  }
+  // Ordenar: primero hoy y futuras (soonest first), después pasado (más recientes primero)
+  var todayStr = offsetDate(0);
+  filtered.sort(function(a,b){
+    var aFuture = a.fecha >= todayStr, bFuture = b.fecha >= todayStr;
+    if (aFuture !== bFuture) return aFuture ? -1 : 1;
+    var av = a.fecha + ' ' + a.hora, bv = b.fecha + ' ' + b.hora;
+    if (aFuture) return av < bv ? -1 : (av > bv ? 1 : 0);
+    return av > bv ? -1 : (av < bv ? 1 : 0);
+  });
+
+  var tbody = document.getElementById('citasBody');
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:44px 20px;color:var(--muted);">No hay citas con este filtro.</td></tr>';
+    document.getElementById('tableCount').textContent = '0 citas';
+    return;
+  }
+
+  var html = '';
+  filtered.forEach(function(c) {
+    var badgeClass = 'badge-' + c.estado;
+    var estadoText = c.estado.charAt(0).toUpperCase() + c.estado.slice(1);
+    html += '<tr data-ref="' + escapeHTML(c.ref) + '">';
+    html += '<td><span class="ref-code">' + escapeHTML(c.ref) + '</span></td>';
+    html += '<td><div class="cliente-name">' + escapeHTML(c.nombre) + '</div><div class="cliente-phone">' + escapeHTML(c.telefono) + '</div></td>';
+    html += '<td><div class="dia-fecha"><span class="d">' + escapeHTML(relativeDay(c.fecha)) + '</span><span class="rel">' + escapeHTML(formatDateShort(c.fecha)) + '</span></div></td>';
+    html += '<td><span class="hora-cell">' + escapeHTML(c.hora) + '</span></td>';
+    html += '<td><span class="servicio-txt">' + escapeHTML(c.servicio) + '</span></td>';
+    html += '<td><span class="badge ' + badgeClass + '">' + escapeHTML(estadoText) + '</span></td>';
+    html += '<td><span class="notas-text">' + (c.notas ? escapeHTML(c.notas) : '<span style="opacity:0.4;">—</span>') + '</span></td>';
+    html += '<td><div class="action-btns" style="justify-content:flex-end;">';
+    if (c.estado !== 'confirmada') html += '<button class="action-btn confirm" title="Confirmar" data-action="confirmar" data-ref="' + escapeHTML(c.ref) + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button>';
+    if (c.estado !== 'cancelada') html += '<button class="action-btn cancel" title="Cancelar" data-action="cancelar" data-ref="' + escapeHTML(c.ref) + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>';
+    html += '<button class="action-btn whatsapp" title="Contestar por WhatsApp" data-action="whatsapp" data-ref="' + escapeHTML(c.ref) + '"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.77.46 3.44 1.27 4.9L2 22l5.25-1.37A9.95 9.95 0 0 0 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm5.2 14.36c-.22.62-1.28 1.18-1.78 1.24-.45.05-1.02.07-1.65-.1-.38-.11-.87-.28-1.5-.54-2.63-1.13-4.34-3.78-4.47-3.95-.13-.17-1.07-1.42-1.07-2.72 0-1.3.68-1.94.92-2.2.24-.27.53-.34.7-.34.17 0 .35 0 .5.01.16.01.38-.06.6.46.22.53.75 1.83.82 1.96.07.13.11.28.02.46-.09.17-.13.28-.26.44-.13.16-.27.35-.39.47-.13.13-.26.27-.11.53.15.26.68 1.13 1.47 1.83 1.01.91 1.87 1.19 2.14 1.33.26.13.42.11.57-.07.15-.18.65-.76.82-1.02.17-.26.34-.22.58-.13.24.09 1.53.72 1.79.85.26.13.44.2.5.31.06.11.06.66-.16 1.28z"/></svg></button>';
+    html += '</div></td>';
+    html += '</tr>';
+  });
+  tbody.innerHTML = html;
+  document.getElementById('tableCount').textContent = filtered.length + ' cita' + (filtered.length !== 1 ? 's' : '');
+}
+
+function showToast(msg, kind) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + (kind || '');
+  requestAnimationFrame(function(){ t.classList.add('show'); });
+  clearTimeout(t._h);
+  t._h = setTimeout(function(){ t.classList.remove('show'); }, 3200);
+}
+
+function changeEstado(ref, nuevoEstado) {
+  var citas = getCitas();
+  citas.forEach(function(c){ if (c.ref === ref) c.estado = nuevoEstado; });
+  saveCitas(citas);
+  updateStats();
+  renderTable();
+  var action = nuevoEstado === 'confirmada' ? 'confirmada' : (nuevoEstado === 'cancelada' ? 'cancelada' : 'actualizada');
+  showToast('Cita ' + ref + ' ' + action, nuevoEstado === 'cancelada' ? 'error' : '');
+}
+
+function openDetail(ref) {
+  var citas = getCitas();
+  var c = citas.find(function(x){ return x.ref === ref; });
+  if (!c) return;
+  selectedRef = ref;
+  document.getElementById('detailNombre').textContent = c.nombre;
+  document.getElementById('detailRef').textContent = c.ref;
+  document.getElementById('detailTel').textContent = c.telefono;
+  document.getElementById('detailFecha').textContent = relativeDay(c.fecha) + ' · ' + formatDateShort(c.fecha);
+  document.getElementById('detailHora').textContent = c.hora;
+  document.getElementById('detailServicio').textContent = c.servicio;
+  document.getElementById('detailNotas').textContent = c.notas || 'Sin notas';
+  var badge = '<span class="badge badge-' + c.estado + '">' + c.estado.charAt(0).toUpperCase() + c.estado.slice(1) + '</span>';
+  document.getElementById('detailEstado').innerHTML = badge;
+  document.getElementById('detailCreada').textContent = formatDateTime(c.creada);
+  document.getElementById('detailOverlay').classList.add('open');
+}
+
+// ---------- LOGIN ----------
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('panelMain').classList.add('active');
+  resetDataIfRequested();
+  initData();
+  updateStats();
+  renderTable();
+});
+
+// ---------- LOGOUT ----------
+document.getElementById('logoutBtn').addEventListener('click', function() {
+  document.getElementById('panelMain').classList.remove('active');
+  document.getElementById('loginScreen').style.display = '';
+});
+
+// ---------- FILTERS ----------
+document.querySelectorAll('.filter-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.filter-btn').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+    currentFilter = btn.dataset.filter;
+    renderTable();
+  });
+});
+
+// ---------- SEARCH ----------
+document.getElementById('searchInput').addEventListener('input', function() {
+  searchTerm = this.value;
+  renderTable();
+});
+
+// ---------- TABLE CLICKS ----------
+document.getElementById('citasBody').addEventListener('click', function(e) {
+  var actionBtn = e.target.closest('.action-btn');
+  if (actionBtn) {
+    e.stopPropagation();
+    var ref = actionBtn.dataset.ref;
+    var action = actionBtn.dataset.action;
+    if (action === 'confirmar') changeEstado(ref, 'confirmada');
+    else if (action === 'cancelar') changeEstado(ref, 'cancelada');
+    else if (action === 'whatsapp') {
+      var citas = getCitas();
+      var c = citas.find(function(x){ return x.ref === ref; });
+      if (c) showToast('Se abriría WhatsApp para ' + c.nombre.split(' ')[0] + ' (' + c.telefono + ')', 'info');
+    }
+    return;
+  }
+  var tr = e.target.closest('tr[data-ref]');
+  if (tr) openDetail(tr.dataset.ref);
+});
+
+// ---------- DETAIL MODAL ----------
+document.getElementById('detailClose').addEventListener('click', function() {
+  document.getElementById('detailOverlay').classList.remove('open');
+});
+document.getElementById('detailOverlay').addEventListener('click', function(e) {
+  if (e.target === this) this.classList.remove('open');
+});
+document.getElementById('detailConfirm').addEventListener('click', function() {
+  if (selectedRef) { changeEstado(selectedRef, 'confirmada'); document.getElementById('detailOverlay').classList.remove('open'); }
+});
+document.getElementById('detailCancel').addEventListener('click', function() {
+  if (selectedRef) { changeEstado(selectedRef, 'cancelada'); document.getElementById('detailOverlay').classList.remove('open'); }
+});
+document.getElementById('detailWa').addEventListener('click', function() {
+  if (selectedRef) {
+    var citas = getCitas();
+    var c = citas.find(function(x){ return x.ref === selectedRef; });
+    if (c) {
+      showToast('Se abriría WhatsApp para ' + c.nombre.split(' ')[0] + ' (' + c.telefono + ')', 'info');
+      document.getElementById('detailOverlay').classList.remove('open');
+    }
+  }
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') document.getElementById('detailOverlay').classList.remove('open');
+});
+</script>
+</body>
+</html>

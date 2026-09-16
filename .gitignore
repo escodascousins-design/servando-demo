@@ -1,8 +1,5 @@
 node_modules/
-.npm-cache/
 .wrangler/
-.dev.vars
-.dev.vars.*
 .DS_Store
 Thumbs.db
 *.log
