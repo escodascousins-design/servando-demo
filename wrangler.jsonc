@@ -13,7 +13,7 @@
     "binding": "ASSETS",
     "run_worker_first": true
   },
-  "d1_databases": [{"binding":"DB","database_name":"servando-reservas","database_id":"00000000-0000-0000-0000-000000000000","migrations_dir":"migrations"}],
+  "d1_databases": [{"binding":"DB","database_name":"servando-reservas","database_id":"19c4837c-c6c3-45e3-b00a-fcafef336dad","migrations_dir":"migrations"}],
   "vars": {"PUBLIC_BOOKING_ENABLED":"false"},
   "triggers": {"crons":["0 3 * * *"]},
   "routes": [
