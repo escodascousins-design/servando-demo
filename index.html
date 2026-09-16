@@ -166,10 +166,11 @@
   .btn-ghost{ color:var(--accent); background:transparent; }
   .btn-ghost:hover{ color:var(--accent-2); }
 
-  /* HERO VISUAL — tipográfico, sin foto */
+  /* HERO VISUAL — retrato de Servando */
   .hero-visual{
-    position:relative; aspect-ratio:5/6; width:100%;
-    border-radius:26px; overflow:hidden;
+    position:relative; aspect-ratio:4/5; width:100%; max-width:380px;
+    margin-left:auto;
+    border-radius:22px; overflow:hidden;
     background:var(--accent);
     box-shadow:var(--shadow);
     opacity:0; animation:fadeUp 1.2s ease 0.55s forwards;
@@ -179,39 +180,49 @@
     background:
       repeating-linear-gradient(
         135deg,
-        rgba(245,239,228,0.05) 0 34px,
-        rgba(245,239,228,0.05) 34px 68px,
-        rgba(168,100,50,0.28) 68px 96px,
-        rgba(168,100,50,0.28) 96px 124px,
-        rgba(245,239,228,0.05) 124px 158px,
-        rgba(245,239,228,0.05) 158px 192px
+        rgba(245,239,228,0.05) 0 28px,
+        rgba(245,239,228,0.05) 28px 56px,
+        rgba(168,100,50,0.22) 56px 78px,
+        rgba(168,100,50,0.22) 78px 100px,
+        rgba(245,239,228,0.05) 100px 128px,
+        rgba(245,239,228,0.05) 128px 156px
       );
-    opacity:0.55;
-    mask-image:radial-gradient(ellipse at 60% 40%, rgba(0,0,0,1) 20%, rgba(0,0,0,0.2) 90%);
-    -webkit-mask-image:radial-gradient(ellipse at 60% 40%, rgba(0,0,0,1) 20%, rgba(0,0,0,0.2) 90%);
+    opacity:0.4;
+    mask-image:radial-gradient(ellipse at 50% 35%, rgba(0,0,0,1) 0%, rgba(0,0,0,0.15) 90%);
+    -webkit-mask-image:radial-gradient(ellipse at 50% 35%, rgba(0,0,0,1) 0%, rgba(0,0,0,0.15) 90%);
   }
   .hero-visual .frame{
-    position:absolute; inset:22px;
-    border:1px solid rgba(245,239,228,0.28); border-radius:18px;
+    position:absolute; inset:18px;
+    border:1px solid rgba(245,239,228,0.22); border-radius:16px;
     pointer-events:none;
   }
-  .hero-visual .mono{
-    position:absolute; inset:0;
-    display:flex; align-items:center; justify-content:center;
+  .hero-visual .avatar{
+    position:absolute; top:50%; left:50%;
+    transform:translate(-50%, -58%);
+    width:62%; aspect-ratio:1; border-radius:50%;
+    overflow:hidden;
+    border:3px solid rgba(245,239,228,0.85);
+    box-shadow:0 12px 40px rgba(0,0,0,0.35);
+    background:var(--bg-alt);
+  }
+  .hero-visual .avatar img{
+    width:100%; height:100%; object-fit:cover; display:block;
+  }
+  .hero-visual .signature{
+    position:absolute; left:0; right:0; bottom:52px;
+    text-align:center;
     font-family:'Cormorant Garamond',serif; font-style:italic;
-    font-weight:500; font-size:min(56vw, 26rem); line-height:1;
-    color:rgba(245,239,228,0.96);
-    text-shadow:0 10px 40px rgba(0,0,0,0.25);
-    letter-spacing:-0.05em;
-    transform:translateY(-2%);
+    font-size:2.2rem; font-weight:500; color:rgba(245,239,228,0.95);
+    letter-spacing:0.01em;
+    text-shadow:0 4px 18px rgba(0,0,0,0.35);
   }
   .hero-visual .foot{
-    position:absolute; left:32px; right:32px; bottom:28px;
+    position:absolute; left:28px; right:28px; bottom:22px;
     display:flex; justify-content:space-between; align-items:baseline;
-    font-family:'Jost',sans-serif; color:rgba(245,239,228,0.75);
-    font-size:0.72rem; letter-spacing:0.28em; text-transform:uppercase;
+    font-family:'Jost',sans-serif; color:rgba(245,239,228,0.7);
+    font-size:0.68rem; letter-spacing:0.28em; text-transform:uppercase;
   }
-  .hero-visual .foot .yr{ font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.95rem; letter-spacing:0.04em; text-transform:none; color:rgba(245,239,228,0.85); }
+  .hero-visual .foot .yr{ font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.9rem; letter-spacing:0.04em; text-transform:none; color:rgba(245,239,228,0.8); }
 
   .scroll-cue{
     position:absolute; bottom:28px; left:50%; transform:translateX(-50%);
@@ -264,6 +275,50 @@
     background:rgba(251,247,238,0.55);
   }
   .note-row svg{ flex-shrink:0; color:var(--accent); }
+
+  /* SU TRABAJO — grid de fotos de Instagram */
+  .work{ background:var(--bg); }
+  .work-header{
+    display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between;
+    gap:20px; margin-bottom:44px;
+  }
+  .work-header .heading{ max-width:640px; }
+  .work-header .ig-link{
+    display:inline-flex; align-items:center; gap:8px;
+    color:var(--accent); font-family:'Jost',sans-serif; font-size:0.88rem;
+    font-weight:500; padding:8px 14px; border-radius:999px;
+    border:1px solid var(--line); transition:all 0.3s ease;
+  }
+  .work-header .ig-link:hover{ background:var(--accent); color:var(--bg); border-color:var(--accent); transform:translateY(-2px); }
+  .work-header .ig-link svg{ width:16px; height:16px; }
+  .work-grid{
+    display:grid; grid-template-columns:repeat(3, 1fr); gap:14px;
+  }
+  .work-grid .tile{
+    position:relative; aspect-ratio:1; overflow:hidden;
+    border-radius:14px; background:var(--bg-alt);
+    cursor:default; box-shadow:var(--shadow-sm);
+  }
+  .work-grid .tile img{
+    width:100%; height:100%; object-fit:cover; display:block;
+    transition:transform 0.6s cubic-bezier(.16,.84,.44,1);
+  }
+  .work-grid .tile::after{
+    content:''; position:absolute; inset:0;
+    background:linear-gradient(180deg, transparent 55%, rgba(21,20,18,0.35) 100%);
+    opacity:0; transition:opacity 0.4s ease;
+    pointer-events:none;
+  }
+  .work-grid .tile:hover img{ transform:scale(1.06); }
+  .work-grid .tile:hover::after{ opacity:1; }
+  .work-credit{
+    text-align:center; margin-top:34px; color:var(--muted); font-size:0.85rem;
+  }
+  .work-credit a{
+    color:var(--accent); border-bottom:1px solid transparent; padding-bottom:1px;
+    transition:border-color 0.3s ease;
+  }
+  .work-credit a:hover{ border-color:var(--accent); }
 
   /* CTA BANNER */
   .cta-banner{
@@ -319,6 +374,13 @@
     transition:color 0.3s ease, border-color 0.3s ease;
   }
   footer .flinks a:hover{ color:var(--accent); border-color:var(--accent); }
+  footer .panel-access{
+    margin-top:22px; font-size:0.75rem; letter-spacing:0.06em;
+  }
+  footer .panel-access a{
+    color:var(--muted); opacity:0.35; transition:opacity 0.3s ease, color 0.3s ease;
+  }
+  footer .panel-access a:hover{ opacity:0.85; color:var(--accent); }
 
   /* Demo badge */
   .demo-badge{
@@ -336,8 +398,8 @@
     section{ padding:80px 0; }
     .hero{ padding:120px 0 70px; min-height:auto; }
     .hero-grid{ grid-template-columns:1fr; gap:44px; }
-    .hero-visual{ order:-1; aspect-ratio:4/3.4; max-width:420px; margin:0 auto; width:100%; }
-    .hero-visual .mono{ font-size:min(46vw, 15rem); }
+    .hero-visual{ order:-1; aspect-ratio:4/5; max-width:320px; margin:0 auto; width:100%; }
+    .hero-visual .signature{ font-size:1.9rem; bottom:46px; }
     .cards{ grid-template-columns:1fr; gap:16px; margin-top:40px; }
     .cta-inner{ grid-template-columns:1fr; gap:32px; padding:70px 0; }
     .cta-side{ align-items:stretch; }
@@ -345,6 +407,8 @@
     .scroll-cue{ display:none; }
     .demo-badge{ bottom:14px; right:14px; padding:6px 12px; font-size:0.66rem; }
     .note-row{ margin-top:36px; }
+    .work-header{ flex-direction:column; align-items:flex-start; margin-bottom:32px; }
+    .work-grid{ grid-template-columns:repeat(2, 1fr); gap:10px; }
   }
   @media (max-width: 520px){
     header{ padding:14px 0; }
@@ -400,10 +464,13 @@
       <div class="phone-line"><b>+34 675 70 17 25</b> · WhatsApp y teléfono</div>
     </div>
 
-    <div class="hero-visual" aria-label="Identidad visual provisional de Servando">
+    <div class="hero-visual" aria-label="Retrato de Servando">
       <div class="pole" aria-hidden="true"></div>
       <div class="frame" aria-hidden="true"></div>
-      <div class="mono" aria-hidden="true">S</div>
+      <div class="avatar">
+        <img src="assets/servando.jpg" alt="Servando, peluquero en Xixona" loading="eager" width="240" height="240">
+      </div>
+      <div class="signature" aria-hidden="true">Servando</div>
       <div class="foot">
         <span>Xixona</span>
         <span class="yr">Peluquería</span>
@@ -447,6 +514,31 @@
   </div>
 </section>
 
+<section class="work" id="trabajo">
+  <div class="wrap">
+    <div class="work-header">
+      <div class="heading">
+        <div class="eyebrow reveal">Su trabajo</div>
+        <h2 class="section-title reveal">Cortes y arreglos <em>de su día a día.</em></h2>
+        <p class="section-sub reveal">Fotos reales que Servando comparte en su Instagram. Aquí ves lo que hace, no lo que otros han hecho por él.</p>
+      </div>
+      <a class="ig-link reveal" href="https://www.instagram.com/ser_estilista/" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.9" fill="currentColor" stroke="none"/></svg>
+        Ver todo en Instagram
+      </a>
+    </div>
+    <div class="work-grid stagger">
+      <a class="tile reveal" style="--i:0" href="https://www.instagram.com/ser_estilista/" target="_blank" rel="noopener" aria-label="Foto de Servando en Instagram"><img src="assets/trabajo/1.jpg" alt="Corte de Servando" loading="lazy" width="640" height="640"></a>
+      <a class="tile reveal" style="--i:1" href="https://www.instagram.com/ser_estilista/" target="_blank" rel="noopener" aria-label="Foto de Servando en Instagram"><img src="assets/trabajo/2.jpg" alt="Trabajo de Servando" loading="lazy" width="640" height="640"></a>
+      <a class="tile reveal" style="--i:2" href="https://www.instagram.com/ser_estilista/" target="_blank" rel="noopener" aria-label="Foto de Servando en Instagram"><img src="assets/trabajo/3.jpg" alt="Corte de Servando" loading="lazy" width="640" height="640"></a>
+      <a class="tile reveal" style="--i:3" href="https://www.instagram.com/ser_estilista/" target="_blank" rel="noopener" aria-label="Foto de Servando en Instagram"><img src="assets/trabajo/4.jpg" alt="Trabajo de Servando" loading="lazy" width="640" height="640"></a>
+      <a class="tile reveal" style="--i:4" href="https://www.instagram.com/ser_estilista/" target="_blank" rel="noopener" aria-label="Foto de Servando en Instagram"><img src="assets/trabajo/5.jpg" alt="Corte de Servando" loading="lazy" width="640" height="640"></a>
+      <a class="tile reveal" style="--i:5" href="https://www.instagram.com/ser_estilista/" target="_blank" rel="noopener" aria-label="Foto de Servando en Instagram"><img src="assets/trabajo/6.jpg" alt="Trabajo de Servando" loading="lazy" width="640" height="640"></a>
+    </div>
+    <p class="work-credit reveal">Fotografías de <a href="https://www.instagram.com/ser_estilista/" target="_blank" rel="noopener">@ser_estilista</a> en Instagram.</p>
+  </div>
+</section>
+
 <section class="cta-banner" id="contacto">
   <div class="wrap cta-inner">
     <div class="cta-copy reveal">
@@ -476,6 +568,7 @@
       <a href="tel:+34675701725">Teléfono</a>
     </div>
     <div class="fmeta">Demo provisional · Escoda Project</div>
+    <p class="panel-access"><a href="/panel">Acceso al panel de gestión →</a></p>
   </div>
 </footer>
 
