@@ -1,0 +1,20 @@
+{
+  "name": "servando-demo",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "test": "node --test tests/availability.test.mjs tests/api.test.mjs",
+    "check": "wrangler deploy --dry-run",
+    "deploy": "wrangler deploy",
+    "password": "node scripts/password.mjs",
+    "predeploy": "node scripts/check-deploy.mjs"
+  },
+  "devDependencies": {
+    "miniflare": "^5.20260915.0-alpha",
+    "wrangler": "^4.132.0"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}

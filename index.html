@@ -363,6 +363,7 @@
     .scroll-cue{ animation:none !important; }
   }
 </style>
+<link rel="stylesheet" href="/booking.css">
 </head>
 <body>
 
@@ -386,8 +387,9 @@
     <div class="hero-copy">
       <span class="eyebrow hero-eyebrow">Peluquería · Xixona</span>
       <h1>Tu corte,<br><em>a tu manera.</em></h1>
-      <p class="lead">Peluquería de confianza en Xixona. Habla directamente con Servando por WhatsApp y encuentra el momento que mejor te venga. Sin apps, sin formularios: la misma cercanía de siempre.</p>
+      <p class="lead">Peluquería de confianza en Xixona. Habla directamente con Servando por WhatsApp o teléfono, como siempre. Si prefieres, consulta los huecos que él ha abierto y solicita tu cita online. Tú eliges; Servando confirma contigo.</p>
       <div class="actions">
+<a class="btn btn-outline" href="#reservar">Ver disponibilidad</a>
         <a class="btn btn-primary" href="https://wa.me/34675701725?text=Hola%20Servando%2C%20quer%C3%ADa%20pedir%20cita" target="_blank" rel="noopener">
           <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.77.46 3.44 1.27 4.9L2 22l5.25-1.37A9.95 9.95 0 0 0 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm5.2 14.36c-.22.62-1.28 1.18-1.78 1.24-.45.05-1.02.07-1.65-.1-.38-.11-.87-.28-1.5-.54-2.63-1.13-4.34-3.78-4.47-3.95-.13-.17-1.07-1.42-1.07-2.72 0-1.3.68-1.94.92-2.2.24-.27.53-.34.7-.34.17 0 .35 0 .5.01.16.01.38-.06.6.46.22.53.75 1.83.82 1.96.07.13.11.28.02.46-.09.17-.13.28-.26.44-.13.16-.27.35-.39.47-.13.13-.26.27-.11.53.15.26.68 1.13 1.47 1.83 1.01.91 1.87 1.19 2.14 1.33.26.13.42.11.57-.07.15-.18.65-.76.82-1.02.17-.26.34-.22.58-.13.24.09 1.53.72 1.79.85.26.13.44.2.5.31.06.11.06.66-.16 1.28z"/></svg>
           Pedir cita por WhatsApp
@@ -426,7 +428,7 @@
       <div class="card reveal" style="--i:0">
         <div class="num">01 · WhatsApp</div>
         <h3>Escríbele directamente</h3>
-        <p>Un mensaje, y Servando te dice cuándo puede recibirte. Sin descargar nada, sin registrarse, sin formularios raros: hablas con él como siempre.</p>
+        <p>Un mensaje, y Servando te dice cuándo puede recibirte. También puedes llamarle. Sin descargar nada ni crear una cuenta: hablas con él como siempre.</p>
       </div>
       <div class="card reveal" style="--i:1">
         <div class="num">02 · Trato cercano</div>
@@ -442,11 +444,29 @@
 
     <div class="note-row reveal">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-      <span>Página en construcción. Horarios, servicios y fotos se añadirán cuando Servando quiera dar el paso.</span>
+      <span>Servando decide cuándo abre su agenda. Si no ves un hueco, habla con él: WhatsApp y llamadas siguen disponibles.</span>
     </div>
   </div>
 </section>
 
+<section id="reservar" aria-labelledby="bookingTitle"><div class="wrap">
+<span class="eyebrow">A tu ritmo</span><h2 class="section-title" id="bookingTitle">Un hueco para ti.<br><em>Cuando Servando esté disponible.</em></h2>
+<p class="section-sub">La reserva online es otra opción. Si prefieres hablar con él, WhatsApp y teléfono siguen aquí.</p>
+<div class="booking-box"><p id="bookingInfo" role="status">Consultando disponibilidad…</p>
+<p class="booking-status" id="bookingStatus" role="status" aria-live="polite"></p>
+<form id="bookingForm" hidden class="booking-grid">
+<label>Día <select id="bookingDate" name="fecha" required><option value="">Elige un día</option></select></label>
+<label>Hora <select id="bookingTime" name="hora" required><option value="">Elige una hora</option></select></label>
+<label>Tu nombre <input name="nombre" autocomplete="name" minlength="2" maxlength="80" required></label>
+<label>Teléfono de contacto <input name="telefono" type="tel" autocomplete="tel" inputmode="tel" maxlength="20" required></label>
+<label class="booking-wide">¿Algo que quieras comentarle? (opcional)<textarea name="notas" maxlength="300" placeholder="Qué necesitas o alguna duda sobre tu cita"></textarea></label>
+<div class="booking-wide"><details><summary>Información de privacidad</summary><p id="bookingPrivacy" class="privacy-copy"></p></details>
+<label class="check"><input name="privacyAccepted" type="checkbox" required>He leído la información de privacidad. Mis datos se usarán para gestionar esta solicitud y contactar conmigo.</label></div>
+<div class="booking-wide"><button type="submit">Solicitar cita · pendiente de confirmación</button><p class="booking-help">No se cobra nada online. La cita estará confirmada cuando Servando hable contigo.</p></div>
+</form><noscript><p>Para ver los huecos online necesitas JavaScript. Puedes pedir cita por WhatsApp o teléfono.</p></noscript>
+<div class="actions"><a class="btn btn-outline" href="https://wa.me/34675701725" target="_blank" rel="noopener">Hablar por WhatsApp</a><a class="btn btn-outline" href="tel:+34675701725">Llamar</a></div></div>
+<div class="note-row"><span>Conoce sus trabajos en <a href="https://www.instagram.com/ser_estilista/" target="_blank" rel="noopener" style="text-decoration:underline">Instagram · @ser_estilista ↗</a>.</span></div>
+</div></section>
 <section class="cta-banner" id="contacto">
   <div class="wrap cta-inner">
     <div class="cta-copy reveal">
@@ -472,6 +492,7 @@
     <div class="fmark">Servando</div>
     <div>Peluquería · Xixona</div>
     <div class="flinks">
+<a href="https://www.instagram.com/ser_estilista/" target="_blank" rel="noopener">Instagram</a>
       <a href="https://wa.me/34675701725?text=Hola%20Servando%2C%20quer%C3%ADa%20pedir%20cita" target="_blank" rel="noopener">WhatsApp</a>
       <a href="tel:+34675701725">Teléfono</a>
     </div>
@@ -524,5 +545,6 @@
     });
   });
 </script>
+<script type="module" src="/booking.js"></script>
 </body>
 </html>
