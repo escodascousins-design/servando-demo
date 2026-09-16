@@ -67,20 +67,26 @@ function renderCalendar(){
   const format=date=>new Intl.DateTimeFormat('es-ES',{day:'numeric',month:'short',timeZone:'Europe/Madrid'}).format(new Date(date+'T12:00:00Z'));
   $('weekTitle').textContent=format(dates[0])+' – '+format(dates[6]);
   const active=state.appointments.filter(c=>c.estado!=='cancelada'&&dates.includes(c.fecha));
+  const weekWindows=dates.flatMap(date=>Object.hasOwn(state.settings.overrides,date)?state.settings.overrides[date]:state.settings.weekly[new Date(date+'T12:00:00Z').getUTCDay()]);
+  const weekBlocks=state.settings.blocks.filter(b=>dates.includes(b.date));
+  const starts=[...weekWindows.map(w=>minute(w[0])),...weekBlocks.map(b=>minute(b.start)),...active.map(c=>c.inicio)];
+  const ends=[...weekWindows.map(w=>minute(w[1])),...weekBlocks.map(b=>minute(b.end)),...active.map(c=>c.fin)];
+  const visibleStart=starts.length?Math.max(0,Math.floor((Math.min(...starts)-60)/60)*60):8*60;
+  const visibleEnd=ends.length?Math.min(24*60,Math.ceil((Math.max(...ends)+60)/60)*60):20*60;
   const pending=active.filter(c=>c.estado==='pendiente').length;
   $('weekSummary').textContent=active.length?`${active.length} citas esta semana · ${pending} pendientes de confirmar`:'Esta semana no hay citas. Puedes anotarlas aunque la reserva online esté pausada.';
   $('onlineStatus').textContent=state.publicReady&&state.settings.enabled?'● Solicitudes online abiertas':'○ Solicitudes online pausadas';
   const headers=dates.map(date=>`<div class="day-header ${date===madridToday()?'is-today':''}">${weekdays[new Date(date+'T12:00:00Z').getUTCDay()].slice(0,3)} <strong>${Number(date.slice(-2))}</strong></div>`).join('');
-  const hours=Array.from({length:24},(_,h)=>`<span style="top:${h*60}px">${clockTime(h*60)}</span>`).join('');
+  const hours=Array.from({length:(visibleEnd-visibleStart)/60+1},(_,h)=>`<span style="top:${h*60}px">${clockTime(visibleStart+h*60)}</span>`).join('');
   const columns=dates.map(date=>{
     const windows=Object.hasOwn(state.settings.overrides,date)?state.settings.overrides[date]:state.settings.weekly[new Date(date+'T12:00:00Z').getUTCDay()];
-    const available=windows.map(([a,b])=>`<div class="available-band" style="top:${minute(a)}px;height:${minute(b)-minute(a)}px" title="Horario abierto ${escape(a)}–${escape(b)}"></div>`).join('');
-    const slots=Array.from({length:48},(_,i)=>`<button class="calendar-slot" style="top:${i*30}px" data-date="${date}" data-time="${clockTime(i*30)}" aria-label="Anotar cita el ${escape(format(date))} a las ${clockTime(i*30)}"></button>`).join('');
-    const blocks=state.settings.blocks.filter(b=>b.date===date).map(b=>`<button class="blocked-band" data-edit-block="${date}" style="top:${minute(b.start)}px;height:${minute(b.end)-minute(b.start)}px" aria-label="Bloqueado ${escape(b.start)}–${escape(b.end)}. Editar bloqueo"><span>${escape(b.start)}–${escape(b.end)}<br>Tiempo para ti</span></button>`).join('');
-    const events=active.filter(c=>c.fecha===date).map(c=>`<button class="calendar-event ${c.estado}" style="top:${c.inicio}px;height:${Math.max(c.fin-c.inicio,24)}px" data-calendar-ref="${escape(c.ref)}" aria-label="${escape(c.nombre)}, ${escape(c.hora)}, ${escape(c.estado)}"><span>${escape(c.hora)}–${clockTime(c.fin)} ${c.estado==='pendiente'?'◷':'✓'}</span><strong>${escape(c.nombre)}</strong>${outOfSchedule(c)?'<span class="event-conflict">Fuera de horario</span>':''}</button>`).join('');
+    const available=windows.map(([a,b])=>`<div class="available-band" style="top:${minute(a)-visibleStart}px;height:${minute(b)-minute(a)}px" title="Horario abierto ${escape(a)}–${escape(b)}"></div>`).join('');
+    const slots=Array.from({length:(visibleEnd-visibleStart)/30},(_,i)=>{const time=visibleStart+i*30;return `<button class="calendar-slot" style="top:${i*30}px" data-date="${date}" data-time="${clockTime(time)}" aria-label="Anotar cita el ${escape(format(date))} a las ${clockTime(time)}"></button>`}).join('');
+    const blocks=state.settings.blocks.filter(b=>b.date===date).map(b=>`<button class="blocked-band" data-edit-block="${date}" style="top:${minute(b.start)-visibleStart}px;height:${minute(b.end)-minute(b.start)}px" aria-label="Bloqueado ${escape(b.start)}–${escape(b.end)}. Editar bloqueo"><span>${escape(b.start)}–${escape(b.end)}<br>Tiempo para ti</span></button>`).join('');
+    const events=active.filter(c=>c.fecha===date).map(c=>`<button class="calendar-event ${c.estado}" style="top:${c.inicio-visibleStart}px;height:${Math.max(c.fin-c.inicio,24)}px" data-calendar-ref="${escape(c.ref)}" aria-label="${escape(c.nombre)}, ${escape(c.hora)}, ${escape(c.estado)}"><span>${escape(c.hora)}–${clockTime(c.fin)} ${c.estado==='pendiente'?'◷':'✓'}</span><strong>${escape(c.nombre)}</strong>${outOfSchedule(c)?'<span class="event-conflict">Fuera de horario</span>':''}</button>`).join('');
     return `<div class="calendar-day">${available}${slots}${blocks}${events}</div>`;
   }).join('');
-  $('calendar').innerHTML=`<div class="calendar-head"><div></div>${headers}</div><div class="calendar-body"><div class="hour-axis">${hours}</div>${columns}</div>`;
+  $('calendar').innerHTML=`<div class="calendar-head"><div></div>${headers}</div><div class="calendar-body" style="height:${visibleEnd-visibleStart}px"><div class="hour-axis">${hours}</div>${columns}</div>`;
 }
 function openCard(id,focus){$(id).hidden=false;$(focus||id).scrollIntoView({block:'start',behavior:'smooth'});if(focus)$(focus).focus({preventScroll:true});}
 function newAppointment(date=madridToday(),time=''){
@@ -105,7 +111,7 @@ $('calendar').addEventListener('click',event=>{
 });
 function changeWeek(days){weekStart=shiftDate(weekStart,days);renderCalendar();}
 $('previousWeek').addEventListener('click',()=>changeWeek(-7));$('nextWeek').addEventListener('click',()=>changeWeek(7));
-$('today').addEventListener('click',()=>{weekStart=monday(madridToday());renderCalendar();$('calendarViewport').scrollTop=480;});
+$('today').addEventListener('click',()=>{weekStart=monday(madridToday());renderCalendar();$('calendarViewport').scrollTop=0;});
 function setView(list){$('appointmentsCard').hidden=!list;$('calendarViewport').hidden=list;$('weekView').setAttribute('aria-pressed',String(!list));$('agendaView').setAttribute('aria-pressed',String(list));if(list)openCard('appointmentsCard');}
 $('weekView').addEventListener('click',()=>setView(false));$('agendaView').addEventListener('click',()=>setView(true));
-$('calendarViewport').scrollTop=480;
+$('calendarViewport').scrollTop=0;
